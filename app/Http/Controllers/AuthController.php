@@ -49,6 +49,13 @@ class AuthController extends Controller
         ];
     }
 
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response(['message' => 'Successfully logged out'], 200);
+    }
+
     public function refreshToken(Request $request)
     {
         $accessToken = $request->user()->createToken('access_token', [TokenAbility::ACCESS_API->value], Carbon::now()->addMinutes(config('sanctum.ac_expiration')));

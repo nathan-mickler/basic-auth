@@ -5,14 +5,23 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::prefix('auth')->group(function () {
+    Route::get('/login', function () {
+        return response(['message' => 'You are no longer authenticated. Please login.'], 401);
+    })->name('login');
 
-Route::post('/auth/register', [AuthController::class, 'register']);
-Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
 
-Route::middleware(['auth:sanctum, ability:' . TokenAbility::ISSUE_ACCESS_TOKEN->value])
-    ->group(function () {
-        Route::get('/auth/refresh', [AuthController::class, 'refreshToken']);
+    Route::middleware(['auth:sanctum'])->group(function() {
+        Route::get('/user/', function (Request $request) {
+            return $request->user();
+        });
+        Route::get('/logout/', [AuthController::class, 'logout']);
+
+        Route::middleware('ability:' . TokenAbility::ACCESS_API->value)
+            ->group(function () {
+                Route::get('/refresh', [AuthController::class, 'refreshToken']);
+        });
+    });
 });
