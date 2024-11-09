@@ -4,6 +4,7 @@ use App\Enums\TokenAbility;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WidgetsController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -28,4 +29,12 @@ Route::prefix('auth')->group(function () {
                 Route::get('/refresh', [AuthController::class, 'refreshToken']);
         });
     });
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('widgets', [WidgetsController::class, 'list']);
+    Route::post('widgets', [WidgetsController::class, 'store']);
+    Route::get('widgets/{id}', [WidgetsController::class, 'view']);
+    Route::post('widgets/{id}', [WidgetsController::class, 'update']);
+    Route::delete('widgets/{id}', [WidgetsController::class, 'destroy']);
 });
