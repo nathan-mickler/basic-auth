@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\TokenAbility;
 use App\Models\User;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -21,14 +22,18 @@ class AuthController extends Controller
             'password' => $password
         ];
 
-        $user = User::create($data);
-        $accessToken = $user->createToken('access_token', [TokenAbility::ACCESS_API->value], Carbon::now()->addMinutes(config('sanctum.ac_expiration')));
-        $refreshToken = $user->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value], Carbon::now()->addMinutes(config('sanctum.rt_expiration')));
+        try {
+            $user = User::create($data);
+            $accessToken = $user->createToken('access_token', [TokenAbility::ACCESS_API->value], Carbon::now()->addMinutes(config('sanctum.ac_expiration')));
+            $refreshToken = $user->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value], Carbon::now()->addMinutes(config('sanctum.rt_expiration')));
 
-        return [
-            'accessToken' => $accessToken->plainTextToken,
-            'refreshToken' => $refreshToken->plainTextToken,
-        ];
+            return [
+                'accessToken' => $accessToken->plainTextToken,
+                'refreshToken' => $refreshToken->plainTextToken,
+            ];
+        } catch (UniqueConstraintViolationException) {
+            return response(['message' => 'Email already exists.'], 409);
+        }
     }
 
     public function login(Request $request)
