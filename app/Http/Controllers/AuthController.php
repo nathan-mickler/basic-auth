@@ -49,12 +49,16 @@ class AuthController extends Controller
             return response(['message' => 'Invalid credentials'], 401);
         }
 
-        $accessToken = auth()->user()->createToken('access_token', [TokenAbility::ACCESS_API->value], Carbon::now()->addMinutes(config('sanctum.ac_expiration')));
-        $refreshToken = auth()->user()->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value], Carbon::now()->addMinutes(config('sanctum.rt_expiration')));
+        $accessTokenExpiration = Carbon::now()->addMinutes(config('sanctum.ac_expiration'));
+        $refreshTokenExpiration = Carbon::now()->addMinutes(config('sanctum.rt_expiration'));
+        $accessToken = auth()->user()->createToken('access_token', [TokenAbility::ACCESS_API->value], $accessTokenExpiration);
+        $refreshToken = auth()->user()->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value], $refreshTokenExpiration);
 
         return [
             'accessToken' => $accessToken->plainTextToken,
+            'accessTokenExpiration' => $accessTokenExpiration->toIso8601String(),
             'refreshToken' => $refreshToken->plainTextToken,
+            'refreshTokenExpiration' => $refreshTokenExpiration->toIso8601String(),
         ];
     }
 
