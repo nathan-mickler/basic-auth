@@ -31,9 +31,9 @@ class AuthController extends Controller
 
             return [
                 'accessToken' => $accessToken->plainTextToken,
-                'accessTokenExpiration' => $accessTokenExpiration,
+                'accessTokenExpiration' => $accessTokenExpiration->toIso8601String(),
                 'refreshToken' => $refreshToken->plainTextToken,
-                'refreshTokenExpiration' => $refreshTokenExpiration,
+                'refreshTokenExpiration' => $refreshTokenExpiration->toIso8601String(),
             ];
         } catch (UniqueConstraintViolationException) {
             return response(['message' => 'Email already exists.'], 409);
