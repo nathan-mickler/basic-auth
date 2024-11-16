@@ -24,12 +24,16 @@ class AuthController extends Controller
 
         try {
             $user = User::create($data);
-            $accessToken = $user->createToken('access_token', [TokenAbility::ACCESS_API->value], Carbon::now()->addMinutes(config('sanctum.ac_expiration')));
-            $refreshToken = $user->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value], Carbon::now()->addMinutes(config('sanctum.rt_expiration')));
+            $accessTokenExpiration = Carbon::now()->addMinutes(config('sanctum.ac_expiration'));
+            $refreshTokenExpiration = Carbon::now()->addMinutes(config('sanctum.rt_expiration'));
+            $accessToken = $user->createToken('access_token', [TokenAbility::ACCESS_API->value], $accessTokenExpiration);
+            $refreshToken = $user->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value], $refreshTokenExpiration);
 
             return [
                 'accessToken' => $accessToken->plainTextToken,
+                'accessTokenExpiration' => $accessTokenExpiration,
                 'refreshToken' => $refreshToken->plainTextToken,
+                'refreshTokenExpiration' => $refreshTokenExpiration,
             ];
         } catch (UniqueConstraintViolationException) {
             return response(['message' => 'Email already exists.'], 409);
