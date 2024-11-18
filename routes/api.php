@@ -24,7 +24,7 @@ Route::prefix('auth')->group(function () {
 
         Route::get('/logout/', [AuthController::class, 'logout']);
 
-        Route::middleware('ability:' . TokenAbility::ACCESS_API->value)
+        Route::middleware('ability:' . TokenAbility::ISSUE_ACCESS_TOKEN->value)
             ->group(function () {
                 Route::get('/refresh', [AuthController::class, 'refreshToken']);
         });
