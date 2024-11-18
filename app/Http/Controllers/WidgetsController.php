@@ -12,10 +12,19 @@ class WidgetsController extends Controller
         $page = $request->get('page') ?? 1;
         $size = $request->get('size') ?? 10;
 
-        $widgets = WidgetModel::skip(($page - 1) * $size)
+        $query = WidgetModel::query();
+        $total = $query->count();
+
+        $widgets = $query->skip(($page - 1) * $size)
             ->take($size)
             ->get();
-        return response()->json($widgets);
+
+        return response()->json([
+            'response' => $widgets,
+            'meta' => [
+                'total' => $total
+            ]
+        ]);
     }
 
     public function view(Request $request)
